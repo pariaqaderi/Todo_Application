@@ -2,11 +2,11 @@
 
 A lightweight and responsive To-Do app. 
 
-#Features
+# Features
 Add, edit, and remove tasks
 Mark tasks as completed
 
-#Installation
+# Installation
 
 1.Clone the repository:
 git clone https://github.com/pariaqaderi/Todo_Application.git
