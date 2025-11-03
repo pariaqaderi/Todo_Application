@@ -1,7 +1,7 @@
 #  Full Stack Todo App (Django REST + React + TypeScript + Tailwind)
 
 A simple full-stack Todo app built with:
-- **Backend:** Django REST Framework + SQLite
+- **Backend:** Django REST Framework
 - **Frontend:** React + TypeScript + Tailwind CSS
 - **Database:** SQLite3
 
