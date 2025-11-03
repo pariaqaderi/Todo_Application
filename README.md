@@ -46,7 +46,7 @@ python manage.py runserver
 
 API will be available at:  http://127.0.0.1:8000/api/todos/
 
-###  1. Backend (Django API)
+###  2. Frontend (React + Vite + TypeScript)
 
 #### Step 1: Install dependencies
 ```bash
