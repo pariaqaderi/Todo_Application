@@ -1,108 +1,153 @@
+
 import { useEffect, useState } from 'react';
-import { getTodos, createTodo, updateTodo, deleteTodo } from '../api/todos';
+import { getTodos,updateTodo, deleteTodo } from '../api/todos';
 
 interface Todo {
   id: number;
   title: string;
-  completed: boolean;
+  description?: string;
+  status: 'open' | 'in_progress' | 'done';
 }
 
 interface Props {
-  refresh: boolean; // <- new prop from App
+  refresh: boolean;
 }
 
-
 export const TodoList = ({ refresh }: Props) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTitle, setNewTitle] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editTitle, setEditTitle] = useState('');
+    const [todos, setTodos] = useState<Todo[]>([]);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [editDescription, setEditDescription] = useState('');
 
-  const fetchTodos = async () => {
-    try {
-      const res = await getTodos();
-      setTodos(res.data);
-    } catch (err) {
-      console.error(err);
+    
+    const fetchTodos  = async () => {
+
+      try{
+        const res = await getTodos();
+        setTodos(res.data);
+      }catch(err){
+        console.error(err);
+      }
     }
-  };
 
-  useEffect(() => {
-    fetchTodos();
-  }, [refresh]);
+    useEffect(() => {
+      fetchTodos();
+    }, [refresh]);
 
-  const handleAdd = async () => {
-    if (!newTitle.trim()) return;
-    await createTodo({ title: newTitle, completed: false });
-    setNewTitle('');
-    fetchTodos();
-  };
+    // Delete todo
+    const handleDelete = async (id: number) => {
+      await deleteTodo(id);
+      fetchTodos();
+    };
 
-  const handleDelete = async (id: number) => {
-    await deleteTodo(id);
-    fetchTodos();
-  };
+    // Toggle between status (optional behavior)
+    const handleToggle = async (todo: Todo) => {
+      const newStatus =
+        todo.status === 'open'
+          ? 'in_progress'
+          : todo.status === 'in_progress'
+          ? 'done'
+          : 'open';
+      await updateTodo(todo.id, {
+        title: todo.title,
+        description: todo.description,
+        status: newStatus,
+      });
+      fetchTodos();
+    };
 
-  const handleToggle = async (todo: Todo) => {
-    await updateTodo(todo.id, { title: todo.title, completed: !todo.completed });
-    fetchTodos();
-  };
+    //Start editing
+    const handleEdit = (todo: Todo) => {
+      setEditingId(todo.id);
+      setEditTitle(todo.title);
+      setEditDescription(todo.description || '');
+    };
 
-  const handleEdit = (todo: Todo) => {
-    setEditingId(todo.id);
-    setEditTitle(todo.title);
-  };
+    const handleUpdate = async (todo: Todo) => {
+      if (!editTitle.trim()) return;
 
-  const handleUpdate = async (todo: Todo) => {
-    if (!editTitle.trim()) return;
-    await updateTodo(todo.id, { title: editTitle, completed: todo.completed });
-    setEditingId(null);
-    setEditTitle('');
-    fetchTodos();
-  };
+      await updateTodo(todo.id, {
+        title: editTitle,
+        description: editDescription,
+        status: todo.status, // keep status unchanged
+      });
 
-  return (
-    <div className=" max-w-md  mx-auto mt-5">
+      setEditingId(null);
+      setEditTitle('');
+      setEditDescription('');
+      fetchTodos();
+    };
+
+
+    return (
+    <div className="max-w-md mx-auto mt-5">
 
       {/* Todo list */}
       <ul className="space-y-3">
-        {todos.map(todo => (
+        {todos.map((todo) => (
           <li
             key={todo.id}
-            className="flex justify-between items-center border_2  rounded-2xl p-3 shadow-sm bg-white"
+            className="flex flex-col border rounded-2xl p-3 bg-white shadow-sm"
           >
             {editingId === todo.id ? (
-              <div className="flex flex-1 items-center">
+              <div className="flex flex-col gap-2">
                 <input
                   type="text"
                   value={editTitle}
-                  onChange={e => setEditTitle(e.target.value)}
-                  className="border px-2 py-1 border-purple-800 rounded-2xl w-full mr-2"
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="border px-2 py-1 border-purple-800 rounded-2xl w-full"
+                  placeholder="Title"
                 />
-                <button
-                  onClick={() => handleUpdate(todo)}
-                  className="bg-green-400 text-white px-2 py-1 rounded-2xl hover:bg-green-600 mr-2"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="bg-gray-400 text-white px-2 py-1 rounded-2xl hover:bg-gray-500"
-                >
-                  Cancel
-                </button>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="border px-2 py-1 border-purple-800 rounded-2xl w-full"
+                  placeholder="Description"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleUpdate(todo)}
+                    className="bg-green-400 text-white px-2 py-1 rounded-2xl hover:bg-green-600"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-gray-400 text-white px-2 py-1 rounded-2xl hover:bg-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ) : (
               <>
-                <span
-                  onClick={() => handleToggle(todo)}
-                  className={`cursor-pointer flex-1 ${
-                    todo.completed ? 'line-through text-gray-400' : ''
-                  }`}
-                >
-                  {todo.title}
-                </span>
-                <div className="flex gap-2">
+                <div className="flex justify-between items-center">
+                  <h3
+                    onClick={() => handleToggle(todo)}
+                    className={`font-semibold text-lg cursor-pointer ${
+                      todo.status === 'done' ? 'line-through text-gray-400' : ''
+                    }`}
+                  >
+                    {todo.title}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 rounded text-sm ${
+                      todo.status === 'open'
+                        ? 'bg-gray-200 text-gray-800'
+                        : todo.status === 'in_progress'
+                        ? 'bg-yellow-200 text-yellow-800'
+                        : 'bg-green-200 text-green-800'
+                    }`}
+                  >
+                    {todo.status.replace('_', ' ')}
+                  </span>
+                </div>
+
+                {todo.description && (
+                  <p className="text-gray-600 mt-1">{todo.description}</p>
+                )}
+
+                <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => handleEdit(todo)}
                     className="bg-purple-400 text-white px-2 py-1 rounded-2xl hover:bg-purple-500"
@@ -123,4 +168,6 @@ export const TodoList = ({ refresh }: Props) => {
       </ul>
     </div>
   );
+
+
 };

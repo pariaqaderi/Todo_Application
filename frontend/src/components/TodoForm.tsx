@@ -1,38 +1,58 @@
 import { useState } from 'react';
 import { createTodo } from '../api/todos';
 
-interface TodoFormProps {
+interface Props {
   onAdd: () => void;
 }
 
-export const TodoForm = ({ onAdd }: TodoFormProps) => {
+export const TodoForm = ({ onAdd }: Props) => {
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<'open' | 'in_progress' | 'done'>('open');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-
-    try {
-      await createTodo({ title, completed: false });
-      setTitle('');
-      onAdd();
-    } catch (err) {
-      console.error('Error creating todo:', err);
-    }
+    await createTodo({ title, description, status });
+    setTitle('');
+    setDescription('');
+    setStatus('open');
+    onAdd();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex  space-x-3.5 mb-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 mb-4">
       <input
         type="text"
+        placeholder="Title (required)"
         value={title}
-        onChange={e => setTitle(e.target.value)}
-        placeholder="New todo"
-        className="rounded-2xl divide-purple-400 bg-white border-2 border-purple-800 px-2 py-1 flex-1"
+        onChange={(e) => setTitle(e.target.value)}
+        className="border border-purple-800 rounded-2xl px-2 py-1"
+        required
       />
-      <button type="submit" className="bg-purple-800 text-white px-4 rounded-2xl   hover:bg-purple-900">
-        Add
+      <textarea
+        placeholder="Description (optional)"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="border border-purple-800 rounded-2xl px-2 py-1"
+      />
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value as 'open' | 'in_progress' | 'done')}
+        className="border border-purple-800 rounded-2xl px-2 py-1"
+      >
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="done">Done</option>
+      </select>
+      <button
+        type="submit"
+        className="bg-purple-600 text-white py-1 rounded-2xl hover:bg-purple-700"
+      >
+        Add Todo
       </button>
     </form>
   );
+
+
 };
