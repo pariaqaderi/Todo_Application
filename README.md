@@ -1,22 +1,67 @@
-# Todo_Application
+#  Full Stack Todo App (Django REST + React + TypeScript + Tailwind)
 
-A lightweight and responsive To-Do app. 
+A simple full-stack Todo app built with:
+- **Backend:** Django REST Framework + SQLite
+- **Frontend:** React + TypeScript + Tailwind CSS
+- **Database:** SQLite3
 
-# Features
-Add, edit, and remove tasks
-Mark tasks as completed
+---
 
-# Installation
+##  Features
 
-1.Clone the repository:
-git clone https://github.com/pariaqaderi/Todo_Application.git
+- Create, update, delete, and toggle todos  
+- Auto-reset SQLite auto-increment when all todos are deleted  
+- UI using Tailwind CSS  
+- REST API backend using Django REST Framework  
 
-2.Enter the project directory:
-cd todo-app
 
-3.Install dependencies:
+---
+
+## ⚙️ Setup Guide
+
+###  1. Backend (Django API)
+
+#### Step 1: Create and activate virtual environment 
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+
+#### Step 2: Install dependencies
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+#### Step 3: Apply migrations
+
+```bash
+python manage.py migrate
+```
+
+#### Step 4: Run server
+```bash
+python manage.py runserver
+```
+
+API will be available at:  http://127.0.0.1:8000/api/todos/
+
+###  1. Backend (Django API)
+
+#### Step 1: Install dependencies
+```bash
+cd frontend
 npm install
+```
 
-4.Start the development server:
-npm start
+#### Step 2: Run development server
+```bash
+npm run dev
+```
+
+Frontend runs on: http://localhost:5173
+
+
+
+
 
