@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from 'react';
-import { getTodos,updateTodo, deleteTodo } from '../api/todos';
+import { getTodos, updateTodo, deleteTodo } from '../api/todos';
 
 interface Todo {
   id: number;
@@ -11,78 +10,76 @@ interface Todo {
 
 interface Props {
   refresh: boolean;
+  searchQuery: string;
 }
 
-export const TodoList = ({ refresh }: Props) => {
-    const [todos, setTodos] = useState<Todo[]>([]);
-    const [editingId, setEditingId] = useState<number | null>(null);
-    const [editTitle, setEditTitle] = useState('');
-    const [editDescription, setEditDescription] = useState('');
+export const TodoList = ({ refresh, searchQuery }: Props) => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
-    
-    const fetchTodos  = async () => {
-
-      try{
-        const res = await getTodos();
-        setTodos(res.data);
-      }catch(err){
-        console.error(err);
-      }
+  // Fetch todos
+  const fetchTodos = async () => {
+    try {
+      const res = await getTodos(searchQuery); // pass search query to API
+      setTodos(res.data);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    useEffect(() => {
-      fetchTodos();
-    }, [refresh]);
+  useEffect(() => {
+    fetchTodos();
+  }, [refresh, searchQuery]);
 
-    // Delete todo
-    const handleDelete = async (id: number) => {
-      await deleteTodo(id);
-      fetchTodos();
-    };
+  // Toggle status (open → in_progress → done → open)
+  const handleToggle = async (todo: Todo) => {
+    const newStatus =
+      todo.status === 'open'
+        ? 'in_progress'
+        : todo.status === 'in_progress'
+        ? 'done'
+        : 'open';
+    await updateTodo(todo.id, {
+      title: todo.title,
+      description: todo.description,
+      status: newStatus,
+    });
+    fetchTodos();
+  };
 
-    // Toggle between status (optional behavior)
-    const handleToggle = async (todo: Todo) => {
-      const newStatus =
-        todo.status === 'open'
-          ? 'in_progress'
-          : todo.status === 'in_progress'
-          ? 'done'
-          : 'open';
-      await updateTodo(todo.id, {
-        title: todo.title,
-        description: todo.description,
-        status: newStatus,
-      });
-      fetchTodos();
-    };
+  // Start editing
+  const handleEdit = (todo: Todo) => {
+    setEditingId(todo.id);
+    setEditTitle(todo.title);
+    setEditDescription(todo.description || '');
+  };
 
-    //Start editing
-    const handleEdit = (todo: Todo) => {
-      setEditingId(todo.id);
-      setEditTitle(todo.title);
-      setEditDescription(todo.description || '');
-    };
+  // Save edits
+  const handleUpdate = async (todo: Todo) => {
+    if (!editTitle.trim()) return;
 
-    const handleUpdate = async (todo: Todo) => {
-      if (!editTitle.trim()) return;
+    await updateTodo(todo.id, {
+      title: editTitle,
+      description: editDescription,
+      status: todo.status,
+    });
 
-      await updateTodo(todo.id, {
-        title: editTitle,
-        description: editDescription,
-        status: todo.status, // keep status unchanged
-      });
+    setEditingId(null);
+    setEditTitle('');
+    setEditDescription('');
+    fetchTodos();
+  };
 
-      setEditingId(null);
-      setEditTitle('');
-      setEditDescription('');
-      fetchTodos();
-    };
+  // Delete todo
+  const handleDelete = async (id: number) => {
+    await deleteTodo(id);
+    fetchTodos();
+  };
 
-
-    return (
+  return (
     <div className="max-w-md mx-auto mt-5">
-
-      {/* Todo list */}
       <ul className="space-y-3">
         {todos.map((todo) => (
           <li
@@ -142,11 +139,9 @@ export const TodoList = ({ refresh }: Props) => {
                     {todo.status.replace('_', ' ')}
                   </span>
                 </div>
-
                 {todo.description && (
                   <p className="text-gray-600 mt-1">{todo.description}</p>
                 )}
-
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => handleEdit(todo)}
@@ -168,6 +163,4 @@ export const TodoList = ({ refresh }: Props) => {
       </ul>
     </div>
   );
-
-
 };

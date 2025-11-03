@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from .models import Todo
 from .serializers import TodoSerializer
 from django.db import connection
@@ -9,6 +9,9 @@ from django.db import connection
 class TodoViewSet(viewsets.ModelViewSet):
     queryset = Todo.objects.all().order_by('-id')
     serializer_class = TodoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description']
+
 
     def perform_destroy(self, instance):
         instance.delete()

@@ -13,6 +13,7 @@ export const TodoForm = ({ onAdd }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+
     await createTodo({ title, description, status });
     setTitle('');
     setDescription('');
@@ -53,6 +54,4 @@ export const TodoForm = ({ onAdd }: Props) => {
       </button>
     </form>
   );
-
-
 };

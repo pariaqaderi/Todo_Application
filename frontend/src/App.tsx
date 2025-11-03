@@ -4,8 +4,9 @@ import { TodoList } from './components/TodoList';
 
 function App() {
   const [refresh, setRefresh] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Toggle refresh to re-fetch todos
+  // Trigger TodoList to refetch todos
   const triggerRefresh = () => setRefresh(!refresh);
 
   return (
@@ -14,11 +15,22 @@ function App() {
         Todo App
       </h1>
 
-      {/* Add new todo */}
+      {/* Search box */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search todos..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border border-purple-800 rounded-2xl px-2 py-1 w-full"
+        />
+      </div>
+
+      {/* Form to add new todo */}
       <TodoForm onAdd={triggerRefresh} />
 
-      {/* List todos */}
-      <TodoList refresh={refresh} />
+      {/* Todo list */}
+      <TodoList refresh={refresh} searchQuery={searchQuery} />
     </div>
   );
 }
