@@ -10,7 +10,7 @@ A simple full-stack Todo app built with:
 ##  Features
 
 - Create, update, delete, and toggle todos  
-- Auto-reset SQLite auto-increment when all todos are deleted  
+- Search option for title and description
 - UI using Tailwind CSS  
 - REST API backend using Django REST Framework  
 
